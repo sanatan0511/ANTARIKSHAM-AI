@@ -1,0 +1,62 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: url('https://svs.gsfc.nasa.gov/vis/a010000/a014100/a014132/BHW_Binary_Black_Holes_Accretion_Disk.gif') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+}
+
+.overlay {
+    background: rgba(0, 0, 0, 0.75);
+    padding: 25px;
+    border-radius: 15px;
+    width: 60%;
+    margin: 40px auto;
+    text-align: center;
+    box-shadow: 0 0 20px #fff;
+}
+
+.logo {
+    width: 100px;
+    margin-bottom: 20px;
+}
+
+input {
+    width: 80%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background-color: #ff9800;
+    color: white;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button:hover {
+    background-color: #e68900;
+}
+
+#answer {
+    margin-top: 15px;
+    font-size: 18px;
+}
+
+#history {
+    list-style: none;
+    padding: 0;
+}
+
+#history li {
+    margin: 5px 0;
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}

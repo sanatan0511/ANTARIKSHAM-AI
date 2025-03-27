@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Interactive AI</title>
+    <style>
+        body {
+            background: url("https://media.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.gif") no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            margin: auto;
+            max-width: 800px;
+        }
+
+        input, button {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            margin: 5px;
+            font-size: 1em;
+        }
+
+        button {
+            background: #00c3ff;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #009ecc;
+        }
+
+        .apod-img {
+            border-radius: 10px;
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+
+        #answer {
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+
+        #history {
+            margin-top: 30px;
+            text-align: left;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        img.logo {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <img src="https://images.seeklogo.com/logo-png/51/2/lovely-professional-university-logo-png_seeklogo-510818.png" alt="NASA Logo" class="logo">
+
+        <h1>🚀 NASA Interactive AI</h1>
+        <p>Here's today's Astronomy Picture of the Day:</p>
+        <img src="{{ apod.url }}" alt="APOD" class="apod-img">
+        <p><strong>{{ apod.title }}</strong></p>
+        <p>{{ apod.explanation[:150] }}...</p>
+
+        <h3>Ask Anything About Space 🌌</h3>
+        <input type="text" id="question" placeholder="Type your space question...">
+        <button onclick="askQuestion()">Ask</button>
+
+        <div id="answer"></div>
+
+        <div id="history">
+            <h4>📜 History</h4>
+            <ul id="history-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        function speak(text) {
+            const synth = window.speechSynthesis;
+            if (!synth) {
+                alert("Speech Synthesis not supported.");
+                return;
+            }
+            const utterThis = new SpeechSynthesisUtterance(text);
+            utterThis.rate = 1;
+            utterThis.pitch = 1;
+            synth.speak(utterThis);
+        }
+
+        async function askQuestion() {
+            const question = document.getElementById('question').value;
+            if (!question) {
+                alert("Please type a question.");
+                return;
+            }
+
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: question })
+            });
+
+            const data = await response.json();
+            document.getElementById('answer').innerText = data.answer;
+            speak(data.answer);
+
+            // Update history
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            data.history.forEach(entry => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>Q:</strong> ${entry.question}<br><strong>A:</strong> ${entry.answer}`;
+                historyList.appendChild(li);
+            });
+        }
+    </script>
+    <script>
+        function speak(text) {
+            const synth = window.speechSynthesis;
+            if (!synth) {
+                alert("Speech Synthesis not supported.");
+                return;
+            }
+            const utterThis = new SpeechSynthesisUtterance(text);
+            utterThis.rate = 1;
+            utterThis.pitch = 1;
+            synth.speak(utterThis);
+        }
+    
+        async function askQuestion() {
+            const question = document.getElementById('question').value;
+            if (!question) {
+                alert("Please type a question.");
+                return;
+            }
+    
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: question })
+            });
+    
+            const data = await response.json();
+            document.getElementById('answer').innerHTML = renderAnswer(data.answer);
+            speak(data.answer);
+    
+            // Update history
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            data.history.forEach(entry => {
+                const parts = entry.answer.split("Image Link: ");
+                const info = parts[0];
+                const imgURL = parts[1] ? parts[1].trim() : null;
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>Q:</strong> ${entry.question}<br><strong>A:</strong> ${info}`;
+                if (imgURL) {
+                    li.innerHTML += `<br><img src="${imgURL}" alt="NASA Image" style="max-width: 100%; margin-top:10px; border-radius:8px;">`;
+                }
+                historyList.appendChild(li);
+            });
+        }
+    
+        function renderAnswer(answerText) {
+            const parts = answerText.split("Image Link: ");
+            const info = parts[0];
+            const imgURL = parts[1] ? parts[1].trim() : null;
+            let result = `<p>${info}</p>`;
+            if (imgURL) {
+                result += `<img src="${imgURL}" alt="NASA Image" style="max-width: 100%; border-radius: 10px; margin-top: 10px;">`;
+            }
+            return result;
+        }
+    </script>
+    <script>
+        function speak(text) {
+            const synth = window.speechSynthesis;
+            if (!synth) {
+                alert("Speech Synthesis not supported.");
+                return;
+            }
+            const utterThis = new SpeechSynthesisUtterance(text);
+            utterThis.rate = 1;
+            utterThis.pitch = 1;
+            synth.speak(utterThis);
+        }
+    
+        async function askQuestion() {
+            const question = document.getElementById('question').value;
+            if (!question) {
+                alert("Please type a question.");
+                return;
+            }
+    
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: question })
+            });
+    
+            const data = await response.json();
+            document.getElementById('answer').innerHTML = renderAnswer(data.answer);
+            speak(data.answer);
+    
+            // Update history
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            data.history.forEach(entry => {
+                const parts = entry.answer.split("Image Link: ");
+                const info = parts[0];
+                const imgURL = parts[1] ? parts[1].trim() : null;
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>Q:</strong> ${entry.question}<br><strong>A:</strong> ${info}`;
+                if (imgURL) {
+                    li.innerHTML += `<br><img src="${imgURL}" alt="NASA Image" style="max-width: 100%; margin-top:10px; border-radius:8px;">`;
+                }
+                historyList.appendChild(li);
+            });
+        }
+    
+        function renderAnswer(answerText) {
+            const parts = answerText.split("Image Link: ");
+            const info = parts[0];
+            const imgURL = parts[1] ? parts[1].trim() : null;
+            let result = `<p>${info}</p>`;
+            if (imgURL) {
+                result += `<img src="${imgURL}" alt="NASA Image" style="max-width: 100%; border-radius: 10px; margin-top: 10px;">`;
+            }
+            return result;
+        }
+    </script>
+    <script>
+    function speak(text) {
+        const synth = window.speechSynthesis;
+        if (!synth) {
+            alert("Speech Synthesis not supported.");
+            return;
+        }
+        const utterThis = new SpeechSynthesisUtterance(text);
+        utterThis.rate = 1;
+        utterThis.pitch = 1;
+        synth.speak(utterThis);
+    }
+
+    async function askQuestion() {
+        const question = document.getElementById('question').value;
+        if (!question) {
+            alert("Please type a question.");
+            return;
+        }
+
+        const response = await fetch('/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: question })
+        });
+
+        const data = await response.json();
+        document.getElementById('answer').innerHTML = renderAnswer(data.answer);
+        speak(data.answer);
+
+        // Update history
+        const historyList = document.getElementById('history-list');
+        historyList.innerHTML = '';
+        data.history.forEach(entry => {
+            const parts = entry.answer.split("Image Link: ");
+            const info = parts[0];
+            const imgURL = parts[1] ? parts[1].trim() : null;
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>Q:</strong> ${entry.question}<br><strong>A:</strong> ${info}`;
+            if (imgURL) {
+                li.innerHTML += `<br><img src="${imgURL}" alt="NASA Image" style="max-width: 100%; margin-top:10px; border-radius:8px;">`;
+            }
+            historyList.appendChild(li);
+        });
+    }
+
+    function renderAnswer(answerText) {
+        const parts = answerText.split("Image Link: ");
+        const info = parts[0];
+        const imgURL = parts[1] ? parts[1].trim() : null;
+        let result = `<p>${info}</p>`;
+        if (imgURL) {
+            result += `<img src="${imgURL}" alt="NASA Image" style="max-width: 100%; border-radius: 10px; margin-top: 10px;">`;
+        }
+        return result;
+    }
+</script>
+<script>
+    function speak(text) {
+        const synth = window.speechSynthesis;
+        if (!synth) {
+            alert("Speech Synthesis not supported.");
+            return;
+        }
+        const utterThis = new SpeechSynthesisUtterance(text);
+        utterThis.rate = 1;
+        utterThis.pitch = 1;
+        synth.speak(utterThis);
+    }
+
+    async function askQuestion() {
+        const question = document.getElementById('question').value;
+        if (!question) {
+            alert("Please type a question.");
+            return;
+        }
+
+        const response = await fetch('/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: question })
+        });
+
+        const data = await response.json();
+        
+        // Split answer and extract image link if present
+        const parts = data.answer.split("Image Link: ");
+        const info = parts[0];
+        const imgURL = parts[1] ? parts[1].trim() : null;
+
+        // Display answer
+        let output = `<p>${info}</p>`;
+        if (imgURL) {
+            output += `<a href="${imgURL}" target="_blank"><img src="${imgURL}" alt="NASA Image" style="max-width: 100%; border-radius: 10px; margin-top: 10px;"></a>`;
+        }
+
+        document.getElementById('answer').innerHTML = output;
+
+        // Voice
+        speak(info);
+
+        // Update history
+        const historyList = document.getElementById('history-list');
+        historyList.innerHTML = '';
+        data.history.forEach(entry => {
+            const parts = entry.answer.split("Image Link: ");
+            const info = parts[0];
+            const imgURL = parts[1] ? parts[1].trim() : null;
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>Q:</strong> ${entry.question}<br><strong>A:</strong> ${info}`;
+            if (imgURL) {
+                li.innerHTML += `<br><a href="${imgURL}" target="_blank"><img src="${imgURL}" alt="NASA Image" style="max-width: 100%; margin-top:10px; border-radius:8px;"></a>`;
+            }
+            historyList.appendChild(li);
+        });
+    }
+</script>
+    <script>
+        function renderAnswer(answerText) {
+            const parts = answerText.split("Image Link: ");
+            const info = parts[0];
+            const imgURL = parts[1] ? parts[1].trim() : null;
+            let result = `<p>${info}</p>`;
+            if (imgURL) {
+                result += `<a href="${imgURL}" target="_blank"><img src="${imgURL}" alt="NASA Image" style="max-width: 100%; border-radius: 10px; margin-top: 10px;"></a>`;
+            }
+            return result;
+        }
+    </script>
+    <script>
+        async function askQuestion() {
+            const question = document.getElementById('question').value;
+            if (!question) {
+                alert("Please type a question.");
+                return;
+            }
+    
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: question })
+            });
+    
+            const data = await response.json();
+    
+            // Extract Image URL from answer
+            const parts = data.answer.split("Image Link: ");
+            const info = parts[0];
+            const imgURL = parts[1] ? parts[1].trim() : null;
+    
+            // Show answer
+            let output = `<p>${info}</p>`;
+            if (imgURL) {
+                output += `<img src="${imgURL}" alt="NASA Image" style="max-width: 100%; margin-top:10px; border-radius:8px;">`;
+                output += `<br><a href="${imgURL}" target="_blank">Open Image in New Tab</a>`;
+            }
+            document.getElementById('answer').innerHTML = output;
+    
+            // Update history
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            data.history.forEach(entry => {
+                const parts = entry.answer.split("Image Link: ");
+                const info = parts[0];
+                const imgURL = parts[1] ? parts[1].trim() : null;
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>Q:</strong> ${entry.question}<br><strong>A:</strong> ${info}`;
+                if (imgURL) {
+                    li.innerHTML += `<br><img src="${imgURL}" alt="NASA Image" style="max-width:100px; border-radius:5px;">`;
+                    li.innerHTML += `<br><a href="${imgURL}" target="_blank">View Full Image</a>`;
+                }
+                historyList.appendChild(li);
+            });
+        }
+    </script>
+    
+    
+    
+
+</body>
+
+</html>
